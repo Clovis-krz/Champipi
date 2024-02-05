@@ -31,19 +31,27 @@ def color(url):
         return res
     except :
         return ""
+    
+def split_dash_space(str):
+    res = ""
+    split_str = str.replace('-', ' ').replace(' ', ' ').split()
+    for i in range(len(split_str)):
+        res += split_str[i].capitalize()
+    return res
 
-#How do I handle multiple shapes ? (Not specified in subject) (https://ultimate-mushroom.com/edible/1001-agaricus-benesii.html)
-#I guess I will have to change it to handle it like colors and separating them with "-"
 def shape(url):
     k2soup = BeautifulSoup(requests.get(url).content, "html.parser")
     try :
         page = k2soup.find("div", class_="mprofile")
         shape_tag = page.find('strong', string='Shape:')
-        shape = shape_tag.find_next_siblings('a')[0].text
-        str_list = shape.split(" ")
+        shapes = [link.text for link in shape_tag.find_next_siblings('a')]
         res = ""
-        for str_part in str_list:
-            res += str_part
+        for i in range(len(shapes)):
+            if i == len(shapes) -1:
+                res += split_dash_space(shapes[i])
+            else :
+                res += split_dash_space(shapes[i]) + "-"
+                
         return res
     except :
         return ""
@@ -61,8 +69,7 @@ def surface(url):
         return res
     except :
         return ""
-    
-#Figure out what to do when one or more of the calls returns "" (Not specified in subject)
+
 def csv(url):
     return comestible(url) +","+ color(url) +","+ shape(url) +","+surface(url)
 

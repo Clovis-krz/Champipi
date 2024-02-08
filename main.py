@@ -79,14 +79,15 @@ def scrap():
     site_url = "https://ultimate-mushroom.com/mushroom-alphabet.html"
     k2soup = BeautifulSoup(requests.get(site_url).content, "html.parser")
     try :
-        page = k2soup.find("ol")
+        page = k2soup.find("div", class_="full_text")
         a_tags = page.find_all('a')
         for a_tag in a_tags:
             link = a_tag.get('href')
-            data = csv(link)
-            print(data)
-            file.write(data+"\n")
-            file.flush()
+            if "https://ultimate-mushroom.com" in link:
+                data = csv(link)
+                print(data)
+                file.write(data+"\n")
+                file.flush()
     except :
         print("Something went wrong while scrapping website")
     file.close()

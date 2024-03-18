@@ -2,6 +2,14 @@ import numpy as np
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+from sklearn.discriminant_analysis import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
+from joblib import dump, load
 
 """
  Returns the first letter of the type from a given mushroom page.
@@ -203,9 +211,9 @@ def formatColorColumn(mushrooms):
     colors = colors[["Color", "R", "G", "B"]]
 
     mushroomsMerged = mushrooms.merge(colors, left_on="Color", right_on="Color", how="left").fillna(-255)
-    mushrooms["R"] = mushroomsMerged["R"]
-    mushrooms["G"] = mushroomsMerged["G"]
-    mushrooms["B"] = mushroomsMerged["B"]
+    mushrooms["R"] = mushroomsMerged["R"].apply(lambda x: int(round(x)))
+    mushrooms["G"] = mushroomsMerged["G"].apply(lambda x: int(round(x)))
+    mushrooms["B"] = mushroomsMerged["B"].apply(lambda x: int(round(x)))
     mushrooms.drop(columns=["Color"], inplace=True)
 
     print("\nData after transformation:")
@@ -228,6 +236,59 @@ def part2():
     return mushrooms
 
 
+def separate_data(dataframe):
+    attributs = []
+    for attribut in dataframe:
+        if attribut != 'Edible':
+            attributs.append(attribut)
+    X_train, X_test, y_train, y_test = train_test_split(dataframe[attributs].values, dataframe["Edible"].values, test_size=0.25)
+    X_train = X_train.astype('int')
+    X_test = X_test.astype('int')
+    y_train = y_train.astype('int')
+    y_test = y_test.astype('int')
+    
+    return (X_train, X_test, y_train, y_test)
+
+def train_model_svm(training_set):
+    (X_train, X_test, y_train, y_test) = training_set
+    
+    svm = make_pipeline(StandardScaler(), SVC())
+    svm.fit(X_train, y_train)
+    print("SVC accuracy:", svm.score(X_test, y_test))
+
+    y_pred = svm.predict(X_test)
+    print("SVC confusion matrix: ",confusion_matrix(y_test, y_pred))
+
+    return svm
+
+def train_model_tree(training_set):
+    (X_train, X_test, y_train, y_test) = training_set
+
+    treeClassifier = make_pipeline(StandardScaler(), DecisionTreeClassifier(max_depth=3))
+    treeClassifier.fit(X_train, y_train)
+
+    print("DecisionTreeClassifier accuracy:", treeClassifier.score(X_test, y_test))
+
+    y_pred = treeClassifier.predict(X_test)
+    print("DecisionTreeClassifier confusion matrix: ",confusion_matrix(y_test, y_pred))
+
+    print("GraphizTree :")
+    print(tree.export_graphviz(treeClassifier.named_steps['decisiontreeclassifier']))
+
+    return treeClassifier
+
+def save_model(model, name):
+    dump(model, name+'.joblib') 
+
+def part3(dataset):
+    training_set = separate_data(dataset)
+    svm = train_model_svm(training_set)
+    treeClassifier = train_model_tree(training_set)
+    save_model(svm, "SVM")
+    save_model(treeClassifier,"TreeClassifier")
+
+
+
 """
  Main function of the program
 """
@@ -237,4 +298,5 @@ if __name__ == "__main__":
 
     print("===== PART 2:  Converting the CSV data to numerical values using pandas =====")
     data = part2()
+    part3(data)
 

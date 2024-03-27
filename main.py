@@ -247,33 +247,57 @@ def separate_data(dataframe):
     y_train = y_train.astype('int')
     y_test = y_test.astype('int')
     
-    return (X_train, X_test, y_train, y_test)
+    return (X_train, X_test, y_train, y_test, attributs)
 
 def train_model_svm(training_set):
-    (X_train, X_test, y_train, y_test) = training_set
-    
-    svm = make_pipeline(StandardScaler(), SVC())
-    svm.fit(X_train, y_train)
-    print("SVC accuracy:", svm.score(X_test, y_test))
+    (X_train, X_test, y_train, y_test, _) = training_set
 
+    # Initalisation et entrainement SVM
+    svm = SVC()
+    svm.fit(X_train, y_train)
+    print("SVM accuracy:", svm.score(X_test, y_test))
     y_pred = svm.predict(X_test)
-    print("SVC confusion matrix: ",confusion_matrix(y_test, y_pred))
+    print("SVM confusion matrix: ",confusion_matrix(y_test, y_pred))
+
+    # Initialisation scaler et transformation de X
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train_scaler = scaler.transform(X_train)
+    X_test_scaler = scaler.transform(X_test)
+
+    # Entrainement avec scaler
+    svm.fit(X_train_scaler, y_train)
+    print("SVM accuracy with scaler:",svm.score(X_test_scaler, y_test))
+    y_pred_scaler = svm.predict(X_test_scaler)
+    print("SVM confusion matrix with scaler:",confusion_matrix(y_test, y_pred_scaler))
 
     return svm
 
 def train_model_tree(training_set):
-    (X_train, X_test, y_train, y_test) = training_set
+    (X_train, X_test, y_train, y_test, attributs) = training_set
 
-    treeClassifier = make_pipeline(StandardScaler(), DecisionTreeClassifier(max_depth=3))
+    # Initialisation et entrainement DecisionTreeClassifier
+    treeClassifier = DecisionTreeClassifier(max_depth=3)
     treeClassifier.fit(X_train, y_train)
-
-    print("DecisionTreeClassifier accuracy:", treeClassifier.score(X_test, y_test))
-
+    print("DecisionTreeClassifier accuracy:",treeClassifier.score(X_test, y_test))
     y_pred = treeClassifier.predict(X_test)
-    print("DecisionTreeClassifier confusion matrix: ",confusion_matrix(y_test, y_pred))
+    print("DecisionTreeClassifier confusion matrix:", confusion_matrix(y_test, y_pred))
 
+    # Initialisation scaler et transformation de X
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train_scaler = scaler.transform(X_train)
+    X_test_scaler = scaler.transform(X_test)
+
+    # Entrainement avec scaler
+    treeClassifier.fit(X_train_scaler, y_train)
+    print("DecisionTreeClassifier accuracy with scaler:", treeClassifier.score(X_test_scaler, y_test))
+    y_pred_scaler = treeClassifier.predict(X_test_scaler)
+    print("DecisionTreeClassifier confusion matrix with scaler:", confusion_matrix(y_test, y_pred_scaler))
+
+    # Export en GraphizTree
     print("GraphizTree :")
-    print(tree.export_graphviz(treeClassifier.named_steps['decisiontreeclassifier']))
+    print(tree.export_graphviz(treeClassifier, feature_names=attributs))
 
     return treeClassifier
 

@@ -19,5 +19,7 @@ $ python3 main.py process rgb [R] [G] [B] shape [shape VALUES] surface [surface 
 # Pour lancer le site web
 ```console
 $ cd web/
+$ npm install
 $ node index.js
 ```
+go to http://localhost:8000/form

@@ -417,10 +417,11 @@ if __name__ == "__main__":
             process()
         elif sys.argv[1] == "part1":
             print("===== PART 1: Creating the CSV data from the ultimate-mushroom.com website using beautifulsoup =====")
-            #part1()
+            part1()
         elif sys.argv[1] == "part2-3":
             print("===== PART 2:  Converting the CSV data to numerical values using pandas =====")
             data = part2()
+            print("===== PART 3:  Train DecisionTree and SVM models with transformers =====")
             part3(data)
         else:
             print("Please choose an argument between (process, part1, part2-3)")

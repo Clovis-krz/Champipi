@@ -377,7 +377,7 @@ def dataToMatrix(rgb, shapes, surfaces):
 def process():
     (rgb, shape, surface, model_name, error) = parseArgs()
     if error:
-        print("Error in the parameters of the model")
+        print("Error in the parameters of the model", rgb, shape, surface, model_name, error)
         return
     else:
         (to_process, error) = dataToMatrix(rgb, shape, surface)
@@ -392,7 +392,7 @@ def process():
                 print("POISONOUS")
             return
         else :
-            print("Error in the parameters of the model")
+            print("Error in the parameters of the model", rgb, shape, surface, model_name, error)
 
 def part3(dataset):
     print("keys", dataset.keys())

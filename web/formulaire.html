@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire</title>
+</head>
+<body>
+    <h1>Formulaire</h1>
+    <form action="#" method="POST">
+        <label for="red">Rouge (R) :</label>
+        <input type="text" id="red" name="red" required><br>
+
+        <label for="green">Vert (G) :</label>
+        <input type="text" id="green" name="green" required><br>
+
+        <label for="blue">Bleu (B) :</label>
+        <input type="text" id="blue" name="blue" required><br>
+
+        <h2>Shapes</h2>
+        <input type="checkbox" id="circle" name="shape" value="circle">
+        <label for="circle">Cercle</label><br>
+
+        <input type="checkbox" id="square" name="shape" value="square">
+        <label for="square">Carré</label><br>
+
+        <input type="checkbox" id="triangle" name="shape" value="triangle">
+        <label for="triangle">Triangle</label><br>
+
+        <h2>Surfaces</h2>
+        <input type="checkbox" id="sphere" name="surface" value="sphere">
+        <label for="sphere">Sphère</label><br>
+
+        <input type="checkbox" id="cube" name="surface" value="cube">
+        <label for="cube">Cube</label><br>
+
+        <input type="checkbox" id="pyramid" name="surface" value="pyramid">
+        <label for="pyramid">Pyramide</label><br>
+
+        <h2>Algorithme</h2>
+        <select name="algorithm" id="algorithm">
+            <option value="SVM">SVM</option>
+            <option value="Arbre de décision">Arbre de décision</option>
+        </select><br><br>
+
+        <input type="submit" value="Soumettre">
+    </form>
+</body>
+</html>

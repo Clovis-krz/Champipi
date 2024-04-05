@@ -10,6 +10,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import tree
 from joblib import dump, load
+import sys
 
 """
  Returns the first letter of the type from a given mushroom page.
@@ -302,9 +303,99 @@ def train_model_tree(training_set):
     return treeClassifier
 
 def save_model(model, name):
-    dump(model, name+'.joblib') 
+    dump(model, name+'.joblib')
+
+def load_model(model_name):
+    return load(model_name)
+
+def parseArgs():
+    cursor = 2
+    rgb = []
+    shape = []
+    surface = []
+    model_name = ""
+    while cursor < len(sys.argv):
+        if sys.argv[cursor] == "rgb":
+            cursor += 1
+            while sys.argv[cursor] != "shape":
+                rgb.append(sys.argv[cursor])
+                cursor += 1
+        if sys.argv[cursor] == "shape":
+            cursor += 1
+            while sys.argv[cursor] != "surface":
+                shape.append(sys.argv[cursor])
+                cursor += 1
+        if sys.argv[cursor] == "surface":
+            cursor += 1
+            while sys.argv[cursor] != "model":
+                surface.append(sys.argv[cursor])
+                cursor += 1
+        if sys.argv[cursor] == "model":
+            cursor += 1
+            model_name = sys.argv[cursor]
+            cursor += 1
+    error = True
+    if len(rgb) > 0 and len(shape) > 0 and len(surface) > 0 and len(model_name) > 0:
+        error = False
+    return (rgb, shape, surface, model_name, error)
+
+def getColumnsID(param):
+    columns = ['Polypore', 'Convex', 'BellShaped', 'Flat', 'Depressed',
+       'CupFungi', 'CoralFungi', 'Knobbed', 'Conical', 'JellyFungi',
+       'Stinkhorns', 'Earthstars', 'Bolete', 'ToothFungi', 'ShellShaped',
+       'FunnelShaped', 'Puffballs', 'Corticioid', 'Chanterelles',
+       'Cylindrical', 'Truffles', 'FalseMorels', 'TrueMorels', 'Cauliflower',
+       'Smooth', 'FlatScales', 'Fibrous', 'Patches', 'RaisedScales', 'Hairy',
+       'Powder', 'Silky', 'Velvety', 'R', 'G', 'B']
+    for i in range(len(columns)):
+        if columns[i] == param:
+            return i
+    return -1
+    
+
+def dataToMatrix(rgb, shapes, surfaces):
+    to_process = np.zeros(36)
+    error = False
+    for i in range(len(rgb)):
+        to_process[len(to_process)-1-i] = rgb[i]
+    for shape in shapes:
+        id = getColumnsID(shape)
+        if id >= 0:
+            to_process[id] = 1
+        else :
+            error = True
+    for surface in surfaces:
+        id = getColumnsID(surface)
+        if id >= 0:
+            to_process[id] = 1
+        else :
+            error = True
+        
+    return (to_process, error)
+
+
+def process():
+    (rgb, shape, surface, model_name, error) = parseArgs()
+    if error:
+        print("Error in the parameters of the model")
+        return
+    else:
+        (to_process, error) = dataToMatrix(rgb, shape, surface)
+        if not error:
+            model = load_model(model_name + ".joblib")
+            res = model.predict([to_process])
+            if res[0] == 0:
+                print("EDIBLE")
+            if res[0] == 1:
+                print("INEDIBLE")
+            if res[0] == 2:
+                print("POISONOUS")
+            return
+        else :
+            print("Error in the parameters of the model")
 
 def part3(dataset):
+    print("keys", dataset.keys())
     training_set = separate_data(dataset)
     svm = train_model_svm(training_set)
     treeClassifier = train_model_tree(training_set)
@@ -317,10 +408,16 @@ def part3(dataset):
  Main function of the program
 """
 if __name__ == "__main__":
-    print("===== PART 1: Creating the CSV data from the ultimate-mushroom.com website using beautifulsoup =====")
-    #part1()
-
-    print("===== PART 2:  Converting the CSV data to numerical values using pandas =====")
-    data = part2()
-    part3(data)
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "process":
+            process()
+        elif sys.argv[1] == "part1":
+            print("===== PART 1: Creating the CSV data from the ultimate-mushroom.com website using beautifulsoup =====")
+            #part1()
+        elif sys.argv[1] == "part2-3":
+            print("===== PART 2:  Converting the CSV data to numerical values using pandas =====")
+            data = part2()
+            part3(data)
+        else:
+            print("Please choose an argument between (process, part1, part2-3)")
 

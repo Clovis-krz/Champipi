@@ -272,7 +272,7 @@ def train_model_svm(training_set):
     y_pred_scaler = svm.predict(X_test_scaler)
     print("SVM confusion matrix with scaler:",confusion_matrix(y_test, y_pred_scaler))
 
-    return svm
+    return (svm, scaler)
 
 def train_model_tree(training_set):
     (X_train, X_test, y_train, y_test, attributs) = training_set
@@ -300,7 +300,7 @@ def train_model_tree(training_set):
     print("GraphizTree :")
     print(tree.export_graphviz(treeClassifier, feature_names=attributs))
 
-    return treeClassifier
+    return (treeClassifier, scaler)
 
 def save_model(model, name):
     dump(model, name+'.joblib')
@@ -383,7 +383,9 @@ def process():
         (to_process, error) = dataToMatrix(rgb, shape, surface)
         if not error:
             model = load_model(model_name + ".joblib")
-            res = model.predict([to_process])
+            scaler = load_model(model_name + "_scaler.joblib")
+            to_process_scaled = scaler.transform([to_process])
+            res = model.predict(to_process_scaled)
             if res[0] == 0:
                 print("EDIBLE")
             if res[0] == 1:
@@ -397,10 +399,12 @@ def process():
 def part3(dataset):
     print("keys", dataset.keys())
     training_set = separate_data(dataset)
-    svm = train_model_svm(training_set)
-    treeClassifier = train_model_tree(training_set)
+    (svm,svm_scaler) = train_model_svm(training_set)
+    (treeClassifier, tree_scaler) = train_model_tree(training_set)
     save_model(svm, "SVM")
+    save_model(svm_scaler, "SVM_scaler")
     save_model(treeClassifier,"TreeClassifier")
+    save_model(tree_scaler, "TreeClassifier_scaler")
 
 
 

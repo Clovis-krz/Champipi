@@ -335,10 +335,13 @@ def parseArgs():
             model_name = sys.argv[cursor]
             cursor += 1
     error = True
-    if len(rgb) > 0 and len(shape) > 0 and len(surface) > 0 and len(model_name) > 0:
+    # Verfie d'avoir au moins un nom de model pour le traitement.
+    # On a soit 0 valeur de RGB soit les 3.
+    if len(model_name) > 0 and (len(rgb) == 0 or len(rgb) == 3) :
         error = False
     return (rgb, shape, surface, model_name, error)
 
+# Renvoie l'index correspondant à la colonne d'un argument
 def getColumnsID(param):
     columns = ['Polypore', 'Convex', 'BellShaped', 'Flat', 'Depressed',
        'CupFungi', 'CoralFungi', 'Knobbed', 'Conical', 'JellyFungi',
@@ -352,7 +355,7 @@ def getColumnsID(param):
             return i
     return -1
     
-
+# Renvoie une matrice pour prédiction avec les paramètres donnés
 def dataToMatrix(rgb, shapes, surfaces):
     to_process = np.zeros(36)
     error = False
@@ -369,11 +372,12 @@ def dataToMatrix(rgb, shapes, surfaces):
         if id >= 0:
             to_process[id] = 1
         else :
-            error = True
-        
+            error = True   
     return (to_process, error)
 
-
+# Traite les arguments en paramétres
+# Transorme en matrice
+# Prédit et renvoie le résultat
 def process():
     (rgb, shape, surface, model_name, error) = parseArgs()
     if error:

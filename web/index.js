@@ -2,14 +2,13 @@ const express = require('express')
 const fs = require('fs');
 var spawn = require("child_process").spawn;
 var bodyParser = require('body-parser');
-const { arch } = require('os');
 
 
 const app = express()
 const port = 8000
 
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+app.use( bodyParser.json() );
+app.use(bodyParser.urlencoded({
   extended: true
 })); 
 
@@ -23,14 +22,23 @@ app.get('/form', (req, res) => {
 })
 
 app.post('/rep', (req,res) => {
-  var Args = ["../main.py", "process", "rgb", req.body.red, req.body.green, req.body.blue];
+  var Args = ["../main.py", "process"];
+  Args.push("rgb");
+  if (req.body.red && req.body.green && req.body.blue) {
+    Args.push(req.body.red);
+    Args.push(req.body.green);
+    Args.push(req.body.blue);
+  }
   Args.push("shape");
   if (Array.isArray(req.body.shape)) {
     req.body.shape.forEach((shape) => {
       Args.push(shape);
     });
   } else {
-    Args.push(req.body.shape);
+    if (req.body.shape) {
+      Args.push(req.body.shape);
+    }
+    
   }
   Args.push("surface");
   if (Array.isArray(req.body.surface)) {
@@ -38,7 +46,9 @@ app.post('/rep', (req,res) => {
       Args.push(surface);
     });
   } else {
-    Args.push(req.body.surface);
+    if (req.body.surface) {
+      Args.push(req.body.surface);
+    }
   }
   Args.push("model");
   Args.push(req.body.model);
@@ -51,7 +61,6 @@ app.post('/rep', (req,res) => {
 
   process.stderr.on('data', (stacktrace) => {
     console.error(stacktrace.toString('utf8'));
-    // possibly parse the stack trace to handle distinct exceptions
   });
 
   process.on('exit', (exitCode) => {
@@ -60,5 +69,5 @@ app.post('/rep', (req,res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Listening on port ${port}`)
 })

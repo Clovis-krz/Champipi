@@ -22,4 +22,4 @@ $ cd web/
 $ npm install
 $ node index.js
 ```
-go to http://localhost:8000/form
+visiter http://localhost:8000/form
